@@ -217,11 +217,16 @@ spec:
       template:
         spec:
           serviceAccountName: upgrader-cronjob-sa
-          restartPolicy: Never
-          containers:
-          - image: harness/upgrader:latest
-            name: upgrader
-            imagePullPolicy: Always
+          terminationGracePeriodSeconds: 600  
+          restartPolicy: Always  
+          containers:  
+          - image: mit0k/delegate-own:0.0.1 
+            imagePullPolicy: Always  
+            name: delegate  
+            securityContext:  
+              allowPrivilegeEscalation: false  
+              runAsUser: 0 
+            restartPolicy: Never
             envFrom:
             - secretRef:
                 name: dev-cluster-upgrader-token
