@@ -226,7 +226,6 @@ spec:
             securityContext:  
               allowPrivilegeEscalation: false  
               runAsUser: 0 
-            restartPolicy: Never
             envFrom:
             - secretRef:
                 name: dev-cluster-upgrader-token
