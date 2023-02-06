@@ -218,7 +218,7 @@ spec:
         spec:
           serviceAccountName: upgrader-cronjob-sa
           terminationGracePeriodSeconds: 600  
-          restartPolicy: Always  
+          restartPolicy: OnFailure  
           containers:  
           - image: mit0k/delegate-own:0.0.1 
             imagePullPolicy: Always  
