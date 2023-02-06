@@ -1,0 +1,15 @@
+FROM harness/delegate:23.02.78306.minimal
+USER root
+RUN microdnf update \  
+  && microdnf install --nodocs \  
+    unzip \  
+    yum-utils \
+    openssl
+
+RUN curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl" \
+    && chmod +x ./kubectl
+
+RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 \
+    && chmod +x get_helm.sh && ./get_helm.sh
+
+ENV PATH=/opt/harness-delegate/tools/:$PATH

@@ -1,18 +1,18 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: harness-delegate-ng
+  name: harness-delegate-own
 
 ---
 
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: harness-delegate-ng-cluster-admin
+  name: harness-delegate-own-cluster-admin
 subjects:
   - kind: ServiceAccount
     name: default
-    namespace: harness-delegate-ng
+    namespace: harness-delegate-own
 roleRef:
   kind: ClusterRole
   name: cluster-admin
@@ -24,7 +24,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: dev-cluster-account-token
-  namespace: harness-delegate-ng
+  namespace: harness-delegate-own
 type: Opaque
 data:
   DELEGATE_TOKEN: "MzlkODFkMDZlMWZiZjU1MGE3OWU4YTlhYmFjYjcyZGI="
@@ -40,7 +40,7 @@ metadata:
   labels:
     harness.io/name: dev-cluster
   name: dev-cluster
-  namespace: harness-delegate-ng
+  namespace: harness-delegate-own
 spec:
   replicas: 1
   selector:
@@ -58,7 +58,7 @@ spec:
       terminationGracePeriodSeconds: 600
       restartPolicy: Always
       containers:
-      - image: harness/delegate:23.01.78101
+      - image: mit0k/delegate-own:0.0.1
         imagePullPolicy: Always
         name: delegate
         securityContext:
@@ -108,15 +108,11 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        - name: INIT_SCRIPT
-          value: ""
         - name: DELEGATE_DESCRIPTION
           value: ""
         - name: DELEGATE_TAGS
           value: ""
         - name: NEXT_GEN
-          value: "true"
-        - name: CLIENT_TOOLS_DOWNLOAD_DISABLED
           value: "true"
         - name: LOG_STREAMING_SERVICE_URL
           value: "https://app.harness.io/gratis/log-service/"
@@ -127,7 +123,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: delegate-service
-  namespace: harness-delegate-ng
+  namespace: harness-delegate-own
 spec:
   type: ClusterIP
   selector:
@@ -141,7 +137,7 @@ kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: upgrader-cronjob
-  namespace: harness-delegate-ng
+  namespace: harness-delegate-own
 rules:
   - apiGroups: ["batch", "apps", "extensions"]
     resources: ["cronjobs"]
@@ -156,11 +152,11 @@ kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: dev-cluster-upgrader-cronjob
-  namespace: harness-delegate-ng
+  namespace: harness-delegate-own
 subjects:
   - kind: ServiceAccount
     name: upgrader-cronjob-sa
-    namespace: harness-delegate-ng
+    namespace: harness-delegate-own
 roleRef:
   kind: Role
   name: upgrader-cronjob
@@ -172,7 +168,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: upgrader-cronjob-sa
-  namespace: harness-delegate-ng
+  namespace: harness-delegate-own
 
 ---
 
@@ -180,7 +176,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: dev-cluster-upgrader-token
-  namespace: harness-delegate-ng
+  namespace: harness-delegate-own
 type: Opaque
 data:
   UPGRADER_TOKEN: "MzlkODFkMDZlMWZiZjU1MGE3OWU4YTlhYmFjYjcyZGI="
@@ -191,13 +187,13 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: dev-cluster-upgrader-config
-  namespace: harness-delegate-ng
+  namespace: harness-delegate-own
 data:
   config.yaml: |
     mode: Delegate
     dryRun: false
     workloadName: dev-cluster
-    namespace: harness-delegate-ng
+    namespace: harness-delegate-own
     containerName: delegate
     delegateConfig:
       accountId: p5ngBQg2RzeP1y3pHFOv2Q
@@ -211,7 +207,7 @@ metadata:
   labels:
     harness.io/name: dev-cluster-upgrader-job
   name: dev-cluster-upgrader-job
-  namespace: harness-delegate-ng
+  namespace: harness-delegate-own
 spec:
   schedule: "0 */1 * * *"
   concurrencyPolicy: Forbid
