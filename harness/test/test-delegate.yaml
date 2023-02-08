@@ -221,6 +221,7 @@ data:
       managerHost: https://app.harness.io/gratis
 
 ---
+
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -239,7 +240,7 @@ spec:
           serviceAccountName: upgrader-cronjob-sa
           restartPolicy: Never
           containers:
-          - image: harness/delegate:23.02.78306.minimal
+          - image: harness/upgrader:latest
             name: upgrader
             imagePullPolicy: Always
             envFrom:
@@ -252,3 +253,4 @@ spec:
             - name: config-volume
               configMap:
                 name: test-cluster-upgrader-config
+

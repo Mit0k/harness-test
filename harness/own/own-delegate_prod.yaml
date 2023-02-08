@@ -58,7 +58,8 @@ spec:
       terminationGracePeriodSeconds: 600
       restartPolicy: Always
       containers:
-      - image: mit0k/delegate-own:0.0.1
+      #- image: mit0k/delegate-own:0.0.1
+      - image: harness/delegate:23.02.78306.minimal
         imagePullPolicy: Always
         name: delegate
         securityContext:
@@ -116,7 +117,26 @@ spec:
           value: "true"
         - name: LOG_STREAMING_SERVICE_URL
           value: "https://app.harness.io/gratis/log-service/"
+        - name: INIT_SCRIPT  
+          value: |  
+            microdnf install gzip
 
+            mkdir -p /opt/harness-delegate/download-tools/  
+            cd /opt/harness-delegate/download-tools  
+              
+            ## Kubectl   
+            curl -L0 https://dl.k8s.io/release/v1.24.3/bin/linux/amd64/kubectl -o kubectl  
+            chmod +x ./kubectl  
+            mv kubectl /usr/local/bin//kubectl  
+              
+            ## Helm V3  
+            curl -L0 https://get.helm.sh/helm-v3.9.2-linux-amd64.tar.gz -o helm-v3.9.2.tar.gz  
+            tar -xvzf helm-v3.9.2.tar.gz  
+            chmod +x ./linux-amd64/helm  
+            mv ./linux-amd64/helm /usr/local/bin/helm
+              
+            cd /opt/harness-delegate
+            rm -rf /opt/harness-delegate/download-tools
 ---
 
 apiVersion: v1
@@ -220,7 +240,7 @@ spec:
           terminationGracePeriodSeconds: 600  
           restartPolicy: OnFailure  
           containers:  
-          - image: mit0k/delegate-own:0.0.1 
+          - image: harness/upgrader:latest 
             imagePullPolicy: Always  
             name: delegate  
             securityContext:  
