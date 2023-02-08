@@ -1,134 +1,134 @@
----
 pipeline:
-  projectIdentifier: "default_project"
-  orgIdentifier: "default"
+  projectIdentifier: default_project
+  orgIdentifier: default
   tags: {}
   stages:
-  - stage:
-      name: "Deploy dev"
-      identifier: "Deploy_dev"
-      description: ""
-      type: "Deployment"
-      spec:
-        deploymentType: "NativeHelm"
-        service:
-          serviceRef: "Helm"
-        environment:
-          environmentRef: "DEV"
-          deployToAll: false
-          infrastructureDefinitions:
-          - identifier: "Dev_infra"
-        execution:
-          steps:
-          - step:
-              type: "HelmDeploy"
-              name: "Helm Deploy_1"
-              identifier: "HelmDeploy_1"
-              spec:
-                skipDryRun: false
-                ignoreReleaseHistFailStatus: false
-              timeout: "10m"
-              failureStrategies: []
-          rollbackSteps:
-          - step:
-              type: "HelmRollback"
-              name: "Helm Rollback_1"
-              identifier: "HelmRollback_1"
-              spec:
-                skipDryRun: false
-              timeout: "10m"
-              failureStrategies: []
-      tags: {}
-      failureStrategies:
-      - onFailure:
-          errors:
-          - "AllErrors"
-          action:
-            type: "StageRollback"
-  - stage:
-      name: "Deploy dev-uat"
-      identifier: "Deploy_devuat"
-      description: ""
-      type: "Deployment"
-      spec:
-        deploymentType: "NativeHelm"
-        execution:
-          steps:
-          - step:
-              type: "HelmDeploy"
-              name: "Helm Deploy_1"
-              identifier: "HelmDeploy_1"
-              spec:
-                skipDryRun: false
-                ignoreReleaseHistFailStatus: false
-                delegateSelectors:
-                - "dev-cluster"
-              timeout: "5m"
-              failureStrategies: []
-          rollbackSteps:
-          - step:
-              type: "HelmRollback"
-              name: "Helm Rollback_1"
-              identifier: "HelmRollback_1"
-              spec:
-                skipDryRun: false
-                delegateSelectors:
-                - "dev-cluster"
-              timeout: "5m"
-              failureStrategies: []
-        service:
-          serviceRef: "Helm"
-        environment:
-          environmentRef: "Env1"
-          deployToAll: false
-          infrastructureDefinitions:
-          - identifier: "test"
-      tags: {}
-      failureStrategies:
-      - onFailure:
-          errors:
-          - "AllErrors"
-          action:
-            type: "StageRollback"
-      variables: []
-  - stage:
-      name: "uat-prod"
-      identifier: "toprod"
-      description: ""
-      type: "Deployment"
-      spec:
-        deploymentType: "NativeHelm"
-        service:
-          useFromStage:
-            stage: "Deploy_devuat"
-        environment:
-          environmentRef: "Prod"
-          deployToAll: false
-          infrastructureDefinitions:
-          - identifier: "Prod_Cluster"
-        execution:
-          steps:
-          - step:
-              name: "Helm Deployment"
-              identifier: "helmDeployment"
-              type: "HelmDeploy"
-              timeout: "10m"
-              spec:
-                skipDryRun: false
-          rollbackSteps:
-          - step:
-              name: "Helm Rollback"
-              identifier: "helmRollback"
-              type: "HelmRollback"
-              timeout: "10m"
-              spec: {}
-      tags: {}
-      failureStrategies:
-      - onFailure:
-          errors:
-          - "AllErrors"
-          action:
-            type: "StageRollback"
-      variables: []
-  identifier: "Main_OCI"
-  name: "Main - OCI"
+    - stage:
+        name: Deploy dev
+        identifier: Deploy_dev
+        description: ""
+        type: Deployment
+        spec:
+          deploymentType: NativeHelm
+          service:
+            serviceRef: Helm_OCI_service
+          environment:
+            environmentRef: DEV
+            deployToAll: false
+            infrastructureDefinitions:
+              - identifier: dev_infra_oci
+          execution:
+            steps:
+              - step:
+                  type: HelmDeploy
+                  name: Helm Deploy_1
+                  identifier: HelmDeploy_1
+                  spec:
+                    skipDryRun: false
+                    ignoreReleaseHistFailStatus: false
+                  timeout: 10m
+                  failureStrategies: []
+            rollbackSteps:
+              - step:
+                  type: HelmRollback
+                  name: Helm Rollback_1
+                  identifier: HelmRollback_1
+                  spec:
+                    skipDryRun: false
+                  timeout: 10m
+                  failureStrategies: []
+        tags: {}
+        failureStrategies:
+          - onFailure:
+              errors:
+                - AllErrors
+              action:
+                type: StageRollback
+    - stage:
+        name: Deploy dev-uat
+        identifier: Deploy_devuat
+        description: ""
+        type: Deployment
+        spec:
+          deploymentType: NativeHelm
+          execution:
+            steps:
+              - step:
+                  type: HelmDeploy
+                  name: Helm Deploy_1
+                  identifier: HelmDeploy_1
+                  spec:
+                    skipDryRun: false
+                    ignoreReleaseHistFailStatus: false
+                    delegateSelectors:
+                      - dev-cluster
+                  timeout: 5m
+                  failureStrategies: []
+            rollbackSteps:
+              - step:
+                  type: HelmRollback
+                  name: Helm Rollback_1
+                  identifier: HelmRollback_1
+                  spec:
+                    skipDryRun: false
+                    delegateSelectors:
+                      - dev-cluster
+                  timeout: 5m
+                  failureStrategies: []
+          service:
+            useFromStage:
+              stage: Deploy_dev
+          environment:
+            environmentRef: Env1
+            deployToAll: false
+            infrastructureDefinitions:
+              - identifier: uat_infra_OCI
+        tags: {}
+        failureStrategies:
+          - onFailure:
+              errors:
+                - AllErrors
+              action:
+                type: StageRollback
+        variables: []
+    - stage:
+        name: uat-prod
+        identifier: toprod
+        description: ""
+        type: Deployment
+        spec:
+          deploymentType: NativeHelm
+          service:
+            useFromStage:
+              stage: Deploy_devuat
+          environment:
+            environmentRef: Prod
+            deployToAll: false
+            infrastructureDefinitions:
+              - identifier: prodinfraOCI
+          execution:
+            steps:
+              - step:
+                  name: Helm Deployment
+                  identifier: helmDeployment
+                  type: HelmDeploy
+                  timeout: 10m
+                  spec:
+                    skipDryRun: false
+            rollbackSteps:
+              - step:
+                  name: Helm Rollback
+                  identifier: helmRollback
+                  type: HelmRollback
+                  timeout: 10m
+                  spec: {}
+        tags: {}
+        failureStrategies:
+          - onFailure:
+              errors:
+                - AllErrors
+              action:
+                type: StageRollback
+        variables: []
+  identifier: Main_OCI
+  name: Main - OCI
