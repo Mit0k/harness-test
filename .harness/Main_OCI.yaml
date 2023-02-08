@@ -100,7 +100,7 @@ pipeline:
           deploymentType: NativeHelm
           service:
             useFromStage:
-              stage: Deploy_devuat
+              stage: Deploy_dev
           environment:
             environmentRef: Prod
             deployToAll: false
